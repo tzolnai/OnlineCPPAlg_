@@ -140,6 +140,17 @@ class EnvGraph:
 	def getNodeDict(self):
 		return self.__graph.nodes
 
+	def getParentOfNode(self, node):
+		assert_is_pos(node)
+		print('self.__graph.edges')
+		print(self.__graph.edges)
+		for edge in self.__graph.edges:
+			assert_is_pos(edge[0])
+			assert_is_pos(edge[1])
+			if edge[1] == node:
+				return edge[0]
+		return None
+
 
 class OnlineCPPAlg:
 	def __init__(self):
@@ -147,7 +158,7 @@ class OnlineCPPAlg:
 		self.delta_sonstant = 1.0 / 10.0
 
 		self.charging_station = (0,0)
-		self.environment = Environment(4, 5, self.charging_station, [(1,1), (2,1), (1,2), (2,2)])
+		self.environment = Environment(4, 5, self.charging_station, [(2,1), (3,1), (2,2), (3,2)])
 		self.environment.printOut()	
 		
 		self.robot_pos = (0,0)
@@ -179,8 +190,8 @@ class OnlineCPPAlg:
 			print('Dcurr_')
 			print(Dcurr_)
 			
-			#while self.find_unvisited_node_with_depth(0, Dcurr_):
-			self.N_roots = self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
+			while self.find_unvisited_node_with_depth(0, Dcurr_):
+				self.N_roots = self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
 
 	
 	def cover(self, charging_station, i, Dcurr, Dcurr_, Dnext, N_roots):
@@ -287,18 +298,17 @@ class OnlineCPPAlg:
 			self.environment.printOut()
 		
 	def recursive_depth_first(self, node, budget, Dcurr, Dcurr_):
-		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):		
-			# add nodes as univisted
-			neighbour_distance = node['distance'] + 1
-			if neighbour_pos not in self.graph.getNodeDict():
-				self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
-
-			# we visit unvisited nodes here only.
-			if self.graph.getNodeDict()[neighbour_pos]['visited'] == True:
-				print("visited already")
+		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
+			# we visit unexplored nodes only.
+			if neighbour_pos in self.graph.getNodeDict():
+				print("explored already")
 				print(self.graph.getNodeDict()[neighbour_pos])
 				print(neighbour_pos)
 				continue
+
+			# add nodes as univisted
+			neighbour_distance = node['distance'] + 1
+			self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
 
 			# we can't visit this node because we won't be able go back to the charging station.
 			if neighbour_distance > budget:
@@ -322,7 +332,17 @@ class OnlineCPPAlg:
 			budget = budget - 1
 			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
 			self.recursive_depth_first(neighbour_dict, budget, Dcurr, Dcurr_)
-			
+
+		# step back to parent
+		print("step back to parent")
+		parent = self.graph.getParentOfNode(node['pos'])
+		assert(parent)
+		print(parent)
+		self.robot_pos = parent
+		self.environment.robot_position = self.robot_pos
+		self.environment.printOut()
+		budget = budget - 1
+
 
 if __name__ == "__main__":
 	alg = OnlineCPPAlg()
