@@ -2,6 +2,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+import copy
 
 ENV_VALUE_EMPTY = "EMPTY"
 ENV_VALUE_ROBOT = "ROBOT"
@@ -89,7 +90,7 @@ class EnvGraph:
 		self.__graph.add_node(root, distance = 0, visited = False)
 
 		# store the unvisited nodes
-		self.unvisited_nodes = []
+		self.__unvisited_nodes = []
 		for neighbour in env.getFreeNeighbours(root):
 			self.addNewNode({'pos': neighbour, 'distance': 1, 'visited': False}, root)
 
@@ -117,16 +118,19 @@ class EnvGraph:
 		self.__graph.add_edge(parent, node_dict['pos'])
 
 		if node_dict['visited'] == False:
-			self.unvisited_nodes.append({'pos': node_dict['pos'], 'distance': node_dict['distance']});
+			self.__unvisited_nodes.append({'pos': node_dict['pos'], 'distance': node_dict['distance']});
 
 	def markNodeAsVisited(self, node):
 		assert_is_pos(node)
 
 		self.__graph.nodes[node].update({'visited': True})
-		for unvisited_node in self.unvisited_nodes:
+		for unvisited_node in self.__unvisited_nodes:
 			if unvisited_node['pos'] == node:
-				self.unvisited_nodes.remove(unvisited_node);
+				self.__unvisited_nodes.remove(unvisited_node);
 				break
+
+	def getUnivisitedNodes(self):
+		return copy.deepcopy(self.__unvisited_nodes)
 
 	def getShortestPath(self, source, target):
 		assert_is_pos(source)
@@ -246,7 +250,7 @@ class OnlineCPPAlg:
 
 	def findUnvisitedNodeWithDepth(self, min_depth, max_depth):
 		min_value = self.energy_budget
-		for node in self.graph.unvisited_nodes:
+		for node in self.graph.getUnivisitedNodes():
 			if node['distance'] >= min_depth and node['distance'] <= max_depth:
 				return True
 
@@ -255,12 +259,12 @@ class OnlineCPPAlg:
 	def findClosestLeftmost(self):
 		# find closest nodes
 		min_value = self.energy_budget
-		for node in self.graph.unvisited_nodes:
+		for node in self.graph.getUnivisitedNodes():
 			if node['distance'] < min_value:
 				min_value = node['distance']
 
 		closest_nodes = []
-		for node in self.graph.unvisited_nodes:
+		for node in self.graph.getUnivisitedNodes():
 			if node['distance'] == min_value:
 				closest_nodes.append(node);
 		
