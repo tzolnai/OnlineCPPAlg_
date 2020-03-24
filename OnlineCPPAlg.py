@@ -84,26 +84,26 @@ class Environment:
 class EnvGraph:
 	def __init__(self, root, env):
 		assert_is_pos(root)
-		
+
 		# dinamically built graph
-		self.graph = nx.Graph(distance = 0, visited = False)		
-		
+		self.__graph = nx.Graph(distance = 0, visited = False)
+
 		# it contains the root first (charging station)
-		self.graph.add_node(root, distance = 0, visited = False)
-		
+		self.__graph.add_node(root, distance = 0, visited = False)
+
 		# store the unvisited nodes
 		self.unvisited_nodes = []
 		for neighbour in env.getFreeNeighbours(root):
 			self.addNewNode({'pos': neighbour, 'distance': 1, 'visited': False}, root)
-	
+
 	# for debugging
 	def printOut(self):
 		# print the adjacency list
-		for line in nx.generate_adjlist(self.graph):
+		for line in nx.generate_adjlist(self.__graph):
 			print(line)
 
 		# write edgelist to grid.edgelist
-		nx.write_edgelist(self.graph, path="grid.edgelist", delimiter=":")
+		nx.write_edgelist(self.__graph, path="grid.edgelist", delimiter=":")
 		# read edgelist from grid.edgelist
 		H = nx.read_edgelist(path="grid.edgelist", delimiter=":")
 
@@ -116,8 +116,8 @@ class EnvGraph:
 		assert(isinstance(node_dict['distance'], int))
 		assert(isinstance(node_dict['visited'], bool))
 
-		self.graph.add_node(node_dict['pos'], distance = node_dict['distance'], visited = node_dict['visited'])
-		self.graph.add_edge(parent, node_dict['pos'])
+		self.__graph.add_node(node_dict['pos'], distance = node_dict['distance'], visited = node_dict['visited'])
+		self.__graph.add_edge(parent, node_dict['pos'])
 
 		if node_dict['visited'] == False:
 			self.unvisited_nodes.append({'pos': node_dict['pos'], 'distance': node_dict['distance']});
@@ -125,7 +125,7 @@ class EnvGraph:
 	def markNodeAsVisited(self, node):
 		assert_is_pos(node)
 
-		self.graph.nodes[node].update({'visited': True})
+		self.__graph.nodes[node].update({'visited': True})
 		for unvisited_node in self.unvisited_nodes:
 			if unvisited_node['pos'] == node:
 				self.unvisited_nodes.remove(unvisited_node);
@@ -135,10 +135,10 @@ class EnvGraph:
 		assert_is_pos(source)
 		assert_is_pos(target)
 
-		return nx.shortest_path(self.graph, source=source, target=target)
+		return nx.shortest_path(self.__graph, source=source, target=target)
 
 	def getNodeDict(self):
-		return self.graph.nodes
+		return self.__graph.nodes
 
 
 class OnlineCPPAlg:
@@ -296,7 +296,7 @@ class OnlineCPPAlg:
 			# we visit unvisited nodes here only.
 			if self.graph.getNodeDict()[neighbour_pos]['visited'] == True:
 				print("visited already")
-				print(self.getNodeDict()[neighbour_pos])
+				print(self.graph.getNodeDict()[neighbour_pos])
 				print(neighbour_pos)
 				continue
 
