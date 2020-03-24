@@ -122,6 +122,13 @@ class EnvGraph:
 		if node_dict['visited'] == False:
 			self.unvisited_nodes.append({'pos': node_dict['pos'], 'distance': node_dict['distance']});
 
+	def getShortestPath(self, source, target):
+		assert_is_pos(source)
+		assert_is_pos(target)
+
+		return nx.shortest_path(self.graph, source=source, target=target)
+
+
 class OnlineCPPAlg:
 	def __init__(self):
 		self.beta_constant = 3.0 / 4.0
@@ -187,7 +194,7 @@ class OnlineCPPAlg:
 		print(Nroot_node_path)
 
 		# go from charging stationg to Nroot first
-		root_Nroot_path = nx.shortest_path(self.graph.graph, source=self.charging_station, target=Nroot_node)
+		root_Nroot_path = self.graph.getShortestPath(self.charging_station, Nroot_node)
 		print('root_Nroot_path')
 		print(root_Nroot_path)
 		self.go_on_path(root_Nroot_path)
@@ -212,7 +219,7 @@ class OnlineCPPAlg:
 		self.recursive_depth_first(node, budget_remain, Dcurr, Dcurr_)
 		
 		# we out of energy budget -> go back to the station.
-		path_to_station = nx.shortest_path(self.graph.graph, source=self.robot_pos, target=self.charging_station)
+		path_to_station = self.graph.getShortestPath(self.robot_pos, self.charging_station)
 		self.go_on_path(path_to_station)
 
 		return N_roots;
@@ -246,7 +253,7 @@ class OnlineCPPAlg:
 		min_path = []
 		min_node = (-1, -1)
 		for Nroot_node in Nroots:
-			path = nx.shortest_path(self.graph.graph, source=Nroot_node, target=node)
+			path = self.graph.getShortestPath(Nroot_node, node)
 			if min_path_len > len(path):
 				min_path_len = len(path)
 				min_path = path
