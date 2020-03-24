@@ -122,6 +122,15 @@ class EnvGraph:
 		if node_dict['visited'] == False:
 			self.unvisited_nodes.append({'pos': node_dict['pos'], 'distance': node_dict['distance']});
 
+	def markNodeAsVisited(self, node):
+		assert_is_pos(node)
+
+		self.graph.nodes[node].update({'visited': True})
+		for unvisited_node in self.unvisited_nodes:
+			if unvisited_node['pos'] == node:
+				self.unvisited_nodes.remove(unvisited_node);
+				break
+
 	def getShortestPath(self, source, target):
 		assert_is_pos(source)
 		assert_is_pos(target)
@@ -212,7 +221,7 @@ class OnlineCPPAlg:
 		print(budget_remain)
 		
 		# mark this node as visited
-		self.graph.graph.nodes[node['pos']].update({'visited': True})
+		self.graph.markNodeAsVisited(node['pos'])
 		self.robot_pos = node['pos']
 		
 		# visit all nodes we can visit with the current budget
@@ -302,8 +311,8 @@ class OnlineCPPAlg:
 			# let visit this new node with the new budget
 			print("visit a new node")
 			print(neighbour_pos)
-			
-			self.graph.graph.nodes[neighbour_pos].update({'visited': True})
+
+			self.graph.markNodeAsVisited(neighbour_pos)
 			self.robot_pos = neighbour_pos
 			self.environment.robot_position = self.robot_pos
 			self.environment.printOut()
