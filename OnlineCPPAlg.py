@@ -85,7 +85,7 @@ class EnvGraph:
 	def __init__(self, root, env):
 		assert_is_pos(root)
 		
-		# dinamically build graph
+		# dinamically built graph
 		self.graph = nx.Graph(distance = 0, visited = False)		
 		
 		# it contains the root first (charging station)
@@ -136,6 +136,9 @@ class EnvGraph:
 		assert_is_pos(target)
 
 		return nx.shortest_path(self.graph, source=source, target=target)
+
+	def getNodeDict(self):
+		return self.graph.nodes
 
 
 class OnlineCPPAlg:
@@ -287,13 +290,13 @@ class OnlineCPPAlg:
 		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):		
 			# add nodes as univisted
 			neighbour_distance = node['distance'] + 1
-			if neighbour_pos not in self.graph.graph.nodes:
+			if neighbour_pos not in self.graph.getNodeDict():
 				self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
 
 			# we visit unvisited nodes here only.
-			if neighbour_pos in self.graph.graph.nodes and self.graph.graph.nodes[neighbour_pos]['visited'] == True:
+			if self.graph.getNodeDict()[neighbour_pos]['visited'] == True:
 				print("visited already")
-				print(self.graph.graph.nodes[neighbour_pos])
+				print(self.getNodeDict()[neighbour_pos])
 				print(neighbour_pos)
 				continue
 
