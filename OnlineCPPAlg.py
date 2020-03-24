@@ -187,7 +187,7 @@ class OnlineCPPAlg:
 			print('Dcurr_')
 			print(Dcurr_)
 			
-			while self.find_unvisited_node_with_depth(0, Dcurr_):
+			while self.findUnvisitedNodeWithDepth(0, Dcurr_):
 				self.N_roots = self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
 
 	
@@ -198,16 +198,16 @@ class OnlineCPPAlg:
 		print(Dcurr_)
 
 		# check whether we have unvisited node with the right depth
-		if not self.find_unvisited_node_with_depth(Dcurr, Dcurr_):
+		if not self.findUnvisitedNodeWithDepth(Dcurr, Dcurr_):
 			return
 
 		# find next node to visit
-		node = self.find_closest_leftmost()
+		node = self.findClosestLeftmost()
 		print('node')
 		print(node)
 
 		# find Nroot node that we will use to go the the unvisited node
-		(Nroot_node, Nroot_node_path) = self.find_closest_Nroot(node['pos'], N_roots)
+		(Nroot_node, Nroot_node_path) = self.findClosestNroot(node['pos'], N_roots)
 		print('Nroot_node')
 		print(Nroot_node)
 		print('Nroot_node_path')
@@ -217,10 +217,10 @@ class OnlineCPPAlg:
 		root_Nroot_path = self.graph.getShortestPath(self.charging_station, Nroot_node)
 		print('root_Nroot_path')
 		print(root_Nroot_path)
-		self.go_on_path(root_Nroot_path)
+		self.goOnPath(root_Nroot_path)
 
 		# go from Nroot to the unvisited node
-		self.go_on_path(Nroot_node_path)
+		self.goOnPath(Nroot_node_path)
 
 		# distance from charging stationg to the unvisited node
 		node_distance = node['distance']
@@ -236,15 +236,15 @@ class OnlineCPPAlg:
 		self.robot_pos = node['pos']
 		
 		# visit all nodes we can visit with the current budget
-		self.recursive_depth_first(node, budget_remain, Dcurr, Dcurr_)
+		self.recursiveDepthFirst(node, budget_remain, Dcurr, Dcurr_)
 		
 		# we out of energy budget -> go back to the station.
 		path_to_station = self.graph.getShortestPath(self.robot_pos, self.charging_station)
-		self.go_on_path(path_to_station)
+		self.goOnPath(path_to_station)
 
 		return N_roots;
 
-	def find_unvisited_node_with_depth(self, min_depth, max_depth):
+	def findUnvisitedNodeWithDepth(self, min_depth, max_depth):
 		min_value = self.energy_budget
 		for node in self.graph.unvisited_nodes:
 			if node['distance'] >= min_depth and node['distance'] <= max_depth:
@@ -252,7 +252,7 @@ class OnlineCPPAlg:
 
 		return False
 
-	def find_closest_leftmost(self):
+	def findClosestLeftmost(self):
 		# find closest nodes
 		min_value = self.energy_budget
 		for node in self.graph.unvisited_nodes:
@@ -268,7 +268,7 @@ class OnlineCPPAlg:
 		assert(len(closest_nodes) > 0)
 		return closest_nodes[0];
 	
-	def find_closest_Nroot(self, node, Nroots):
+	def findClosestNroot(self, node, Nroots):
 		min_path_len = self.energy_budget
 		min_path = []
 		min_node = (-1, -1)
@@ -282,8 +282,8 @@ class OnlineCPPAlg:
 		assert(min_node != (-1, -1))
 		return (min_node, min_path)
 
-	def go_on_path(self, path):
-		print("go_on_path")
+	def goOnPath(self, path):
+		print("goOnPath")
 		print(path)
 		if len(path) <= 1:
 			return
@@ -303,7 +303,7 @@ class OnlineCPPAlg:
 		self.graph.markNodeAsVisited(new_pos)
 		self.printOut()
 		
-	def recursive_depth_first(self, node, budget, Dcurr, Dcurr_):
+	def recursiveDepthFirst(self, node, budget, Dcurr, Dcurr_):
 		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
 			# we visit unexplored nodes only.
 			if neighbour_pos in self.graph.getNodeDict():
@@ -334,7 +334,7 @@ class OnlineCPPAlg:
 			self.doOneStep(neighbour_pos)
 			budget = budget - 1
 			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
-			self.recursive_depth_first(neighbour_dict, budget, Dcurr, Dcurr_)
+			self.recursiveDepthFirst(neighbour_dict, budget, Dcurr, Dcurr_)
 
 		# step back to parent
 		print("step back to parent")
