@@ -94,7 +94,6 @@ class EnvGraph:
 		# store the unvisited nodes
 		self.unvisited_nodes = []
 		for neighbour in env.getFreeNeighbours(root):
-			self.unvisited_nodes.append({'pos': neighbour, 'distance': 1});
 			self.addNewNode({'pos': neighbour, 'distance': 1, 'visited': False}, root)
 	
 	# for debugging
@@ -119,7 +118,9 @@ class EnvGraph:
 
 		self.graph.add_node(node_dict['pos'], distance = node_dict['distance'], visited = node_dict['visited'])
 		self.graph.add_edge(parent, node_dict['pos'])
-		
+
+		if node_dict['visited'] == False:
+			self.unvisited_nodes.append({'pos': node_dict['pos'], 'distance': node_dict['distance']});
 
 class OnlineCPPAlg:
 	def __init__(self):
@@ -271,8 +272,7 @@ class OnlineCPPAlg:
 			# add nodes as univisted
 			neighbour_distance = node['distance'] + 1
 			if neighbour_pos not in self.graph.graph.nodes:
-				self.graph.graph.add_node(neighbour_pos, distance = neighbour_distance, visited = False)
-				self.graph.graph.add_edge(node['pos'], neighbour_pos)
+				self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
 
 			# we visit unvisited nodes here only.
 			if neighbour_pos in self.graph.graph.nodes and self.graph.graph.nodes[neighbour_pos]['visited'] == True:
