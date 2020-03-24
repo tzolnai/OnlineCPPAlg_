@@ -25,9 +25,9 @@ class Environment:
 		assert(charging_station not in obstacle_list)
 	
 		# a rectanlge area with the set width and height
-		self.width = width
-		self.height = height
-		self.env_array = []
+		self.__width = width
+		self.__height = height
+		self.__env_array = []
 		for i in range(height):
 			row = []
 			for j in range(width):
@@ -37,25 +37,22 @@ class Environment:
 					row.append(ENV_VALUE_OBSTACLE)
 				else:
 					row.append(ENV_VALUE_EMPTY)
-			self.env_array.append(row)
+			self.__env_array.append(row)
 
 		# position of the charging station
-		self.charging_station = charging_station
-		
-		# robot is at the charging station in the beginning
-		self.robot_position = charging_station
+		self.__charging_station = charging_station
 		
 		# contains all positions covered by obstacles
-		self.obstacle_list = obstacle_list
+		self.__obstacle_list = obstacle_list
 	
 	# for debugging
-	def printOut(self):
-		for i in range(self.height):
-			for j in range(self.width):
-				if self.robot_position == (i,j):
+	def printOut(self, robot_position):
+		for i in range(self.__height):
+			for j in range(self.__width):
+				if robot_position == (i,j):
 					print(ENV_VALUE_ROBOT, end =", ")
 				else:
-					print(self.env_array[i][j], end =", ")
+					print(self.__env_array[i][j], end =", ")
 			print("")
 
 	def getFreeNeighbours(self, pos):
@@ -63,20 +60,20 @@ class Environment:
 
 		neighbours = []
 		# west
-		if (pos[1] < self.width - 1 and
-		   self.env_array[pos[0]][pos[1] + 1] == ENV_VALUE_EMPTY):
+		if (pos[1] < self.__width - 1 and
+		   self.__env_array[pos[0]][pos[1] + 1] == ENV_VALUE_EMPTY):
 			neighbours.append((pos[0], pos[1] + 1))
 		# north
-		if (pos[0] < self.height - 1 and
-		   self.env_array[pos[0] + 1][pos[1]] == ENV_VALUE_EMPTY):
+		if (pos[0] < self.__height - 1 and
+		   self.__env_array[pos[0] + 1][pos[1]] == ENV_VALUE_EMPTY):
 			neighbours.append((pos[0] + 1, pos[1]))
 		# east
 		if (pos[1] > 0 and
-		   self.env_array[pos[0]][pos[1] - 1] == ENV_VALUE_EMPTY):
+		   self.__env_array[pos[0]][pos[1] - 1] == ENV_VALUE_EMPTY):
 			neighbours.append((pos[0], pos[1] - 1))
 		# south
 		if (pos[0] > 0 and
-		   self.env_array[pos[0] - 1][pos[1]] == ENV_VALUE_EMPTY):
+		   self.__env_array[pos[0] - 1][pos[1]] == ENV_VALUE_EMPTY):
 			neighbours.append((pos[0] - 1, pos[1]))
 
 		return neighbours;
@@ -159,9 +156,9 @@ class OnlineCPPAlg:
 
 		self.charging_station = (0,0)
 		self.environment = Environment(4, 5, self.charging_station, [(2,1), (3,1), (2,2), (3,2)])
-		self.environment.printOut()	
-		
 		self.robot_pos = (0,0)
+		self.printOut()
+
 		self.energy_budget = 20
 		
 		self.N_roots = [self.charging_station]
@@ -294,8 +291,7 @@ class OnlineCPPAlg:
 		for node in range(1, len(path)):
 			self.robot_pos = path[node]
 			print(path[node])
-			self.environment.robot_position = path[node]
-			self.environment.printOut()
+			self.printOut()
 		
 	def recursive_depth_first(self, node, budget, Dcurr, Dcurr_):
 		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
@@ -327,8 +323,7 @@ class OnlineCPPAlg:
 
 			self.graph.markNodeAsVisited(neighbour_pos)
 			self.robot_pos = neighbour_pos
-			self.environment.robot_position = self.robot_pos
-			self.environment.printOut()
+			self.printOut()
 			budget = budget - 1
 			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
 			self.recursive_depth_first(neighbour_dict, budget, Dcurr, Dcurr_)
@@ -339,9 +334,11 @@ class OnlineCPPAlg:
 		assert(parent)
 		print(parent)
 		self.robot_pos = parent
-		self.environment.robot_position = self.robot_pos
-		self.environment.printOut()
+		self.printOut()
 		budget = budget - 1
+
+	def printOut(self):
+		self.environment.printOut(self.robot_pos);
 
 
 if __name__ == "__main__":
