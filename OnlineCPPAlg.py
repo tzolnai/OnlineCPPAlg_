@@ -235,10 +235,6 @@ class OnlineCPPAlg:
 		print('budget_remain')
 		print(budget_remain)
 		
-		# mark this node as visited
-		self.graph.markNodeAsVisited(node['pos'])
-		self.robot_pos = node['pos']
-		
 		# visit all nodes we can visit with the current budget
 		self.recursiveDepthFirst(node, budget_remain, Dcurr, Dcurr_)
 		
