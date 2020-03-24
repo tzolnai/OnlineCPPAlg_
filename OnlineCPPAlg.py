@@ -289,9 +289,19 @@ class OnlineCPPAlg:
 			return
 
 		for node in range(1, len(path)):
-			self.robot_pos = path[node]
-			print(path[node])
-			self.printOut()
+			self.doOneStep(path[node])
+
+	def doOneStep(self, new_pos):
+		print("doOneStep")
+		print(new_pos)
+		print(self.robot_pos)
+		assert_is_pos(new_pos)
+		assert(self.robot_pos[0] == new_pos[0] or self.robot_pos[1] == new_pos[1])
+		assert(abs(self.robot_pos[0] - new_pos[0]) == 1 or abs(self.robot_pos[1] - new_pos[1]) == 1)
+
+		self.robot_pos = new_pos
+		self.graph.markNodeAsVisited(new_pos)
+		self.printOut()
 		
 	def recursive_depth_first(self, node, budget, Dcurr, Dcurr_):
 		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
@@ -321,9 +331,7 @@ class OnlineCPPAlg:
 			print("visit a new node")
 			print(neighbour_pos)
 
-			self.graph.markNodeAsVisited(neighbour_pos)
-			self.robot_pos = neighbour_pos
-			self.printOut()
+			self.doOneStep(neighbour_pos)
 			budget = budget - 1
 			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
 			self.recursive_depth_first(neighbour_dict, budget, Dcurr, Dcurr_)
@@ -333,8 +341,7 @@ class OnlineCPPAlg:
 		parent = self.graph.getParentOfNode(node['pos'])
 		assert(parent)
 		print(parent)
-		self.robot_pos = parent
-		self.printOut()
+		self.doOneStep(parent)
 		budget = budget - 1
 
 	def printOut(self):
