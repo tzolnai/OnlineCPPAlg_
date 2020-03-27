@@ -279,7 +279,8 @@ class OnlineCPPAlg:
 			if node['distance'] == min_value:
 				closest_nodes.append(node);
 		
-		# TODO leftmost
+		# we add items to the unvisited nodes list from left-to-right
+		# so the first item is the leftmost.
 		assert(len(closest_nodes) > 0)
 		return closest_nodes[0];
 	
