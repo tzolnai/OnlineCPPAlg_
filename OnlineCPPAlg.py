@@ -150,6 +150,10 @@ class EnvGraph:
 
 		return node_list;
 
+	def validateOutputGraph(self):
+		for node in self.__graph.nodes:
+			assert(self.__graph.nodes[node]['visited'] == True)
+
 
 class OnlineCPPAlg:
 	def __init__(self):
@@ -183,6 +187,8 @@ class OnlineCPPAlg:
 
 			# update N list, to used as roots in the next round
 			self.N_roots = self.graph.getNodeWithDepth(Dnext)
+
+		self.validateOutput()
 
 	
 	def cover(self, charging_station, i, Dcurr, Dcurr_, Dnext, N_roots):
@@ -305,6 +311,9 @@ class OnlineCPPAlg:
 	def printOut(self):
 		self.environment.printOut(self.robot_pos)
 		self.graph.printOut()
+
+	def validateOutput(self):
+		self.graph.validateOutputGraph()
 
 
 if __name__ == "__main__":
