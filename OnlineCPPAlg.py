@@ -224,6 +224,34 @@ class OnlineCPPAlg:
 
 		return N_roots;
 
+	def recursiveDepthFirst(self, node, budget, Dcurr, Dcurr_):
+		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
+			# we visit unexplored nodes only.
+			if neighbour_pos in self.graph.getNodeDict():
+				continue
+
+			# add nodes as univisted
+			neighbour_distance = node['distance'] + 1
+			self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
+
+			# we can't visit this node because we won't be able go back to the charging station.
+			if neighbour_distance > budget:
+				continue
+			# we visit a contour here, so don't wonder too far.
+			if neighbour_distance < Dcurr or neighbour_distance > Dcurr_:
+				continue
+
+			# let visit this new node with the new budget
+			self.doOneStep(neighbour_pos)
+			budget = budget - 1
+			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
+			self.recursiveDepthFirst(neighbour_dict, budget, Dcurr, Dcurr_)
+
+		# step back to parent
+		parent = self.graph.getParentOfNode(node['pos'])
+		self.doOneStep(parent)
+		budget = budget - 1
+
 	def findUnvisitedNodeWithDepth(self, min_depth, max_depth):
 		min_value = self.energy_budget
 		for node in self.graph.getUnivisitedNodes():
@@ -279,34 +307,6 @@ class OnlineCPPAlg:
 		self.graph.markNodeAsVisited(new_pos)
 		print("Robot did one step!")
 		self.printOut()
-		
-	def recursiveDepthFirst(self, node, budget, Dcurr, Dcurr_):
-		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
-			# we visit unexplored nodes only.
-			if neighbour_pos in self.graph.getNodeDict():
-				continue
-
-			# add nodes as univisted
-			neighbour_distance = node['distance'] + 1
-			self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
-
-			# we can't visit this node because we won't be able go back to the charging station.
-			if neighbour_distance > budget:
-				continue
-			# we visit a contour here, so don't wonder too far.
-			if neighbour_distance < Dcurr or neighbour_distance > Dcurr_:
-				continue
-			
-			# let visit this new node with the new budget
-			self.doOneStep(neighbour_pos)
-			budget = budget - 1
-			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
-			self.recursiveDepthFirst(neighbour_dict, budget, Dcurr, Dcurr_)
-
-		# step back to parent
-		parent = self.graph.getParentOfNode(node['pos'])
-		self.doOneStep(parent)
-		budget = budget - 1
 
 	def printOut(self):
 		self.environment.printOut(self.robot_pos)
