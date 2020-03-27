@@ -143,8 +143,6 @@ class EnvGraph:
 
 	def getParentOfNode(self, node):
 		assert_is_pos(node)
-		print('self.__graph.edges')
-		print(self.__graph.edges)
 		for edge in self.__graph.edges:
 			assert_is_pos(edge[0])
 			assert_is_pos(edge[1])
@@ -153,15 +151,11 @@ class EnvGraph:
 		return None
 
 	def getNodeWithDepth(self, depth):
-		print("getNodeWithDepth")
-		print(depth)
 		node_list = []
 		for node in self.__graph.nodes:
 			if self.__graph.nodes[node]['distance'] == depth:
-				print(self.__graph.nodes[node])
 				node_list.append(node);
 
-		print(node_list)
 		return node_list;
 
 
@@ -188,20 +182,10 @@ class OnlineCPPAlg:
 		log_value = (self.energy_budget / 2.0) - 1.0
 		for i in range(1, math.ceil(math.log(log_value, log_base)) + 1):
 			Dcurr = math.floor(self.energy_budget - pow(1 - self.delta_sonstant, i - 1) * self.energy_budget)
-			print('Dcurr')
-			print(Dcurr)
 			Dnext = math.floor(self.energy_budget - pow(1 - self.delta_sonstant, i) * self.energy_budget)
-			print('Dnext')
-			print(Dnext)
 			Bcurr = self.energy_budget - Dcurr
-			print('Bcurr')
-			print(Bcurr)
 			Bcurr_ = math.ceil((self.beta_constant + self.delta_sonstant) * Bcurr)
-			print('Bcurr_')
-			print(Bcurr_)
 			Dcurr_ = self.energy_budget - Bcurr_
-			print('Dcurr_')
-			print(Dcurr_)
 			
 			while self.findUnvisitedNodeWithDepth(0, Dcurr_):
 				self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
@@ -211,10 +195,6 @@ class OnlineCPPAlg:
 
 	
 	def cover(self, charging_station, i, Dcurr, Dcurr_, Dnext, N_roots):
-		print('Dcurr')
-		print(Dcurr)
-		print('Dcurr_')
-		print(Dcurr_)
 
 		# check whether we have unvisited node with the right depth
 		if not self.findUnvisitedNodeWithDepth(Dcurr, Dcurr_):
@@ -222,20 +202,12 @@ class OnlineCPPAlg:
 
 		# find next node to visit
 		node = self.findClosestLeftmost()
-		print('node')
-		print(node)
 
 		# find Nroot node that we will use to go the the unvisited node
 		(Nroot_node, Nroot_node_path) = self.findClosestNroot(node['pos'], N_roots)
-		print('Nroot_node')
-		print(Nroot_node)
-		print('Nroot_node_path')
-		print(Nroot_node_path)
 
 		# go from charging stationg to Nroot first
 		root_Nroot_path = self.graph.getShortestPath(self.charging_station, Nroot_node)
-		print('root_Nroot_path')
-		print(root_Nroot_path)
 		self.goOnPath(root_Nroot_path)
 
 		# go from Nroot to the unvisited node
@@ -243,12 +215,8 @@ class OnlineCPPAlg:
 
 		# distance from charging stationg to the unvisited node
 		node_distance = node['distance']
-		print('node_distance')
-		print(node_distance)
 
 		budget_remain = self.energy_budget - node_distance
-		print('budget_remain')
-		print(budget_remain)
 		
 		# visit all nodes we can visit with the current budget
 		self.recursiveDepthFirst(node, budget_remain, Dcurr, Dcurr_)
@@ -299,8 +267,6 @@ class OnlineCPPAlg:
 		return (min_node, min_path)
 
 	def goOnPath(self, path):
-		print("goOnPath")
-		print(path)
 		if len(path) <= 1:
 			return
 
@@ -308,24 +274,19 @@ class OnlineCPPAlg:
 			self.doOneStep(path[node])
 
 	def doOneStep(self, new_pos):
-		print("doOneStep")
-		print(new_pos)
-		print(self.robot_pos)
 		assert_is_pos(new_pos)
 		assert(self.robot_pos[0] == new_pos[0] or self.robot_pos[1] == new_pos[1])
 		assert(abs(self.robot_pos[0] - new_pos[0]) == 1 or abs(self.robot_pos[1] - new_pos[1]) == 1)
 
 		self.robot_pos = new_pos
 		self.graph.markNodeAsVisited(new_pos)
+		print("Robot did one step!")
 		self.printOut()
 		
 	def recursiveDepthFirst(self, node, budget, Dcurr, Dcurr_):
 		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
 			# we visit unexplored nodes only.
 			if neighbour_pos in self.graph.getNodeDict():
-				print("explored already")
-				print(self.graph.getNodeDict()[neighbour_pos])
-				print(neighbour_pos)
 				continue
 
 			# add nodes as univisted
@@ -334,29 +295,19 @@ class OnlineCPPAlg:
 
 			# we can't visit this node because we won't be able go back to the charging station.
 			if neighbour_distance > budget:
-				print("too far")
-				print(neighbour_distance)
 				continue
 			# we visit a contour here, so don't wonder too far.
 			if neighbour_distance < Dcurr or neighbour_distance > Dcurr_:
-				print("not on contour")
-				print(neighbour_distance)
 				continue
 			
 			# let visit this new node with the new budget
-			print("visit a new node")
-			print(neighbour_pos)
-
 			self.doOneStep(neighbour_pos)
 			budget = budget - 1
 			neighbour_dict = {'pos': neighbour_pos, 'distance': neighbour_distance}
 			self.recursiveDepthFirst(neighbour_dict, budget, Dcurr, Dcurr_)
 
 		# step back to parent
-		print("step back to parent")
 		parent = self.graph.getParentOfNode(node['pos'])
-		assert(parent)
-		print(parent)
 		self.doOneStep(parent)
 		budget = budget - 1
 
