@@ -87,7 +87,7 @@ class EnvGraph:
 		self.__graph = nx.Graph(distance = 0, visited = False)
 
 		# it contains the root first (charging station)
-		self.__graph.add_node(root, distance = 0, visited = False)
+		self.__graph.add_node(root, distance = 0, visited = True)
 
 		# store the unvisited nodes
 		self.__unvisited_nodes = []
@@ -96,17 +96,9 @@ class EnvGraph:
 
 	# for debugging
 	def printOut(self):
-		# print the adjacency list
-		for line in nx.generate_adjlist(self.__graph):
-			print(line)
-
-		# write edgelist to grid.edgelist
-		nx.write_edgelist(self.__graph, path="grid.edgelist", delimiter=":")
-		# read edgelist from grid.edgelist
-		H = nx.read_edgelist(path="grid.edgelist", delimiter=":")
-
-		nx.draw(H)
-		plt.show()
+		for node in self.__graph.nodes:
+			print(node, end =": ")
+			print(self.__graph.nodes[node])
 	
 	def addNewNode(self, node_dict, parent):
 		assert_is_pos(parent)
@@ -167,15 +159,14 @@ class OnlineCPPAlg:
 		self.charging_station = (0,0)
 		self.environment = Environment(4, 5, self.charging_station, [(2,1), (3,1), (2,2), (3,2)])
 		self.robot_pos = (0,0)
-		self.printOut()
 
 		self.energy_budget = 20
 		
 		self.N_roots = [self.charging_station]
 		
 		self.graph = EnvGraph(self.charging_station, self.environment)
-		#self.graph.printOut()
-
+		print("Initial state")
+		self.printOut()
 
 	def run(self):
 		log_base = 1.0 / (1.0 - self.delta_sonstant)
@@ -312,7 +303,8 @@ class OnlineCPPAlg:
 		budget = budget - 1
 
 	def printOut(self):
-		self.environment.printOut(self.robot_pos);
+		self.environment.printOut(self.robot_pos)
+		self.graph.printOut()
 
 
 if __name__ == "__main__":
