@@ -152,6 +152,18 @@ class EnvGraph:
 				return edge[0]
 		return None
 
+	def getNodeWithDepth(self, depth):
+		print("getNodeWithDepth")
+		print(depth)
+		node_list = []
+		for node in self.__graph.nodes:
+			if self.__graph.nodes[node]['distance'] == depth:
+				print(self.__graph.nodes[node])
+				node_list.append(node);
+
+		print(node_list)
+		return node_list;
+
 
 class OnlineCPPAlg:
 	def __init__(self):
@@ -174,7 +186,7 @@ class OnlineCPPAlg:
 	def run(self):
 		log_base = 1.0 / (1.0 - self.delta_sonstant)
 		log_value = (self.energy_budget / 2.0) - 1.0
-		for i in range(1, 2): #math.ceil(math.log(log_value, log_base)) + 1):
+		for i in range(1, math.ceil(math.log(log_value, log_base)) + 1):
 			Dcurr = math.floor(self.energy_budget - pow(1 - self.delta_sonstant, i - 1) * self.energy_budget)
 			print('Dcurr')
 			print(Dcurr)
@@ -192,7 +204,10 @@ class OnlineCPPAlg:
 			print(Dcurr_)
 			
 			while self.findUnvisitedNodeWithDepth(0, Dcurr_):
-				self.N_roots = self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
+				self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
+
+			# update N list, to used as roots in the next round
+			self.N_roots = self.graph.getNodeWithDepth(Dnext)
 
 	
 	def cover(self, charging_station, i, Dcurr, Dcurr_, Dnext, N_roots):
