@@ -9,7 +9,8 @@ import OnlineCPPAlg as ocpp
 config_files = [
 	'default_config.txt',
 	'empty_environment.txt',
-	'bigger_environment.txt'
+	'bigger_environment.txt',
+	'charging_station_different_pos.txt'
 ]
 
 class graphValidationTest(unittest.TestCase):
@@ -67,7 +68,7 @@ class graphValidationTest(unittest.TestCase):
 			for edge in self.alg.graph.getEdges():
 				if edge[1] == node:
 					parent_count += 1
-			if node == (0,0):
+			if node == self.alg.charging_station:
 				self.assertEqual(parent_count, 0)
 			else:
 				self.assertEqual(parent_count, 1)
