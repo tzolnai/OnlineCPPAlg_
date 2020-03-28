@@ -61,21 +61,21 @@ class Environment:
 
 		neighbours = []
 		# west
-		if (pos[1] < self.__width - 1 and
-		   self.__env_array[pos[0]][pos[1] + 1] == ENV_VALUE_EMPTY):
-			neighbours.append((pos[0], pos[1] + 1))
-		# north
-		if (pos[0] < self.__height - 1 and
-		   self.__env_array[pos[0] + 1][pos[1]] == ENV_VALUE_EMPTY):
-			neighbours.append((pos[0] + 1, pos[1]))
-		# east
 		if (pos[1] > 0 and
 		   self.__env_array[pos[0]][pos[1] - 1] == ENV_VALUE_EMPTY):
 			neighbours.append((pos[0], pos[1] - 1))
-		# south
+		# north
 		if (pos[0] > 0 and
 		   self.__env_array[pos[0] - 1][pos[1]] == ENV_VALUE_EMPTY):
 			neighbours.append((pos[0] - 1, pos[1]))
+		# east
+		if (pos[1] < self.__width - 1 and
+		   self.__env_array[pos[0]][pos[1] + 1] == ENV_VALUE_EMPTY):
+			neighbours.append((pos[0], pos[1] + 1))
+		# south
+		if (pos[0] < self.__height - 1 and
+		   self.__env_array[pos[0] + 1][pos[1]] == ENV_VALUE_EMPTY):
+			neighbours.append((pos[0] + 1, pos[1]))
 
 		return neighbours;
 
