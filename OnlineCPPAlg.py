@@ -165,16 +165,15 @@ class EnvGraph:
 
 
 class OnlineCPPAlg:
-	def __init__(self):
+	def __init__(self, charging_station_pos, environment, energy_budget):
 		self.beta_constant = 3.0 / 4.0
 		self.delta_sonstant = 1.0 / 10.0
 
-		self.charging_station = (0,0)
-		self.environment = Environment(4, 5, self.charging_station, [(2,1), (3,1), (2,2), (3,2)])
-		self.robot_pos = (0,0)
+		self.charging_station = charging_station_pos
+		self.environment = environment
+		self.energy_budget = energy_budget
 
-		self.energy_budget = 20
-		
+		self.robot_pos = self.charging_station
 		self.N_roots = [self.charging_station]
 		
 		self.graph = EnvGraph(self.charging_station, self.environment)
@@ -325,5 +324,8 @@ class OnlineCPPAlg:
 
 
 if __name__ == "__main__":
-	alg = OnlineCPPAlg()
+	charging_station = (0,0)
+	environment = Environment(4, 5, charging_station, [(2,1), (3,1), (2,2), (3,2)])
+	energy_budget = 20
+	alg = OnlineCPPAlg(charging_station, environment, energy_budget)
 	alg.run()
