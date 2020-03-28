@@ -79,6 +79,16 @@ class Environment:
 
 		return neighbours;
 
+	def getAllFreeCells(self):
+
+		free_cells = []
+		for i in range(self.__height):
+			for j in range(self.__width):
+				if self.__env_array[i][j] == ENV_VALUE_EMPTY:
+					free_cells.append((i,j))
+
+		return free_cells;
+
 class EnvGraph:
 	def __init__(self, root, env):
 		assert_is_pos(root)
@@ -133,6 +143,8 @@ class EnvGraph:
 	def getNodeDict(self):
 		return self.__graph.nodes
 
+	def getEdges(self):
+		return self.__graph.edges
 	def getParentOfNode(self, node):
 		assert_is_pos(node)
 		for edge in self.__graph.edges:
