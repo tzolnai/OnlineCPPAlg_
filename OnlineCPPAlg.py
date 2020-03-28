@@ -145,6 +145,7 @@ class EnvGraph:
 
 	def getEdges(self):
 		return self.__graph.edges
+
 	def getParentOfNode(self, node):
 		assert_is_pos(node)
 		for edge in self.__graph.edges:
@@ -195,6 +196,10 @@ class OnlineCPPAlg:
 
 			# update N list, to used as roots in the next round
 			self.N_roots = self.graph.getNodeWithDepth(Dnext)
+
+			# we can finish when there is no unvisited node at all
+			if not self.findUnvisitedNodeWithDepth(0, self.energy_budget):
+				return
 
 	
 	def cover(self, charging_station, i, Dcurr, Dcurr_, Dnext, N_roots):
