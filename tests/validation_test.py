@@ -10,7 +10,8 @@ config_files = [
 	'default_config.txt',
 	'empty_environment.txt',
 	'bigger_environment.txt',
-	'charging_station_different_pos.txt'
+	'charging_station_different_pos.txt',
+	'bigger_budget.txt'
 ]
 
 class graphValidationTest(unittest.TestCase):
