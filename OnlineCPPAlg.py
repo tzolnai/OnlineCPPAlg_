@@ -294,6 +294,7 @@ class OnlineCPPAlg:
 			if neighbour_pos not in self.graph.getNodeDict():
 				# find out new node distance
 				min_distance = node['distance']
+				min_node = node['pos']
 				for neighbour_of_neighbour_pos in self.environment.getFreeNeighbours(neighbour_pos):
 					if neighbour_of_neighbour_pos in self.graph.getNodeDict():
 						if self.graph.getNodeDict()[neighbour_of_neighbour_pos]['distance'] < min_distance:
@@ -313,6 +314,9 @@ class OnlineCPPAlg:
 				continue
 
 			if neighbour_distance <= node['distance']:
+				continue
+
+			if self.graph.getParentOfNode(neighbour_pos) != node['pos']:
 				continue
 
 			# let visit this new node with the new budget
