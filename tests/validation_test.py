@@ -1,17 +1,19 @@
-import sys
-import os
-# Add the local path to the main script so we can import them.
-sys.path = [".."] + sys.path
-
 import unittest
+# Add the local path to the main script so we can import them.
+import os, sys, inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir) 
 import OnlineCPPAlg as ocpp
 
 config_files = [
-	'default_config.txt',
-	'empty_environment.txt',
-	'bigger_environment.txt',
-	'charging_station_different_pos.txt',
-	'bigger_budget.txt'
+	'tests/default_config.txt',
+	'tests/empty_environment.txt',
+	'tests/bigger_environment.txt',
+	'tests/charging_station_different_pos.txt',
+	'tests/bigger_budget.txt',
+	'tests/env_1.txt',
+	'tests/env_2.txt',
 ]
 
 class graphValidationTest(unittest.TestCase):
@@ -85,7 +87,6 @@ class graphValidationTest(unittest.TestCase):
 	def checkGraphCoversEnvironment(self):
 		for free_cell in self.alg.environment.getAllFreeCells():
 			assert(free_cell in self.alg.graph.getNodeDict())
-
 
 
 if __name__ == "__main__":

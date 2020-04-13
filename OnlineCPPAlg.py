@@ -1,13 +1,28 @@
 
-import networkx as nx
-import matplotlib.pyplot as plt
+import os
+import sys
 import math
 import copy
+import time
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+from utils import readFile
 
+ANIMATION_MODE = "ANIMATION_MODE" in os.environ
 ENV_VALUE_EMPTY = "EMPTY"
 ENV_VALUE_ROBOT = "ROBOT"
 ENV_VALUE_STATION = "STATION"
 ENV_VALUE_OBSTACLE = "OBSTACLE"
+
+COLOR_VALUE_EMPTY = 0
+COLOR_VALUE_ROBOT = 50
+COLOR_VALUE_STATION = 100
+COLOR_VALUE_OBSTACLE = 150
+
+if ANIMATION_MODE:
+	plt.ion()
+	fig, ax = plt.subplots()
 
 def assert_is_pos(pos):
 	assert(isinstance(pos, tuple))
@@ -33,7 +48,7 @@ class Environment:
 			row = []
 			for j in range(width):
 				if (i,j) == charging_station:
-					row.append(ENV_VALUE_STATION)					
+					row.append(ENV_VALUE_STATION)
 				elif (i,j) in obstacle_list:
 					row.append(ENV_VALUE_OBSTACLE)
 				else:
@@ -55,6 +70,35 @@ class Environment:
 				else:
 					print(self.__env_array[i][j], end =", ")
 			print("")
+
+	def showMatrix(self, robot_position, nodes):
+		plt.cla()
+		matrix = []
+		for i in range(self.__height):
+			matrix.append([])
+			for j in range(self.__width):
+				if robot_position == (i,j):
+					matrix[i].append(COLOR_VALUE_ROBOT)
+					text = "R"
+				else:
+					value = None
+					try:
+						text = nodes[(i, j)]['distance']
+					except:
+						text = "N/A"
+					if self.__env_array[i][j] == ENV_VALUE_EMPTY:
+						value = COLOR_VALUE_EMPTY
+					if self.__env_array[i][j] == ENV_VALUE_STATION:
+						value = COLOR_VALUE_STATION
+						text = "S"
+					if self.__env_array[i][j] == ENV_VALUE_OBSTACLE:
+						value = COLOR_VALUE_OBSTACLE 
+						text = ""
+					matrix[i].append(value)
+				ax.text(j, i, str(text), va="center", ha="center")
+
+		ax.matshow(matrix)
+		plt.pause(0.75)
 
 	def getFreeNeighbours(self, pos):
 		assert_is_pos(pos)
@@ -109,6 +153,9 @@ class EnvGraph:
 		for node in self.__graph.nodes:
 			print(node, end =": ")
 			print(self.__graph.nodes[node])
+
+	def getNodes(self):
+		return self.__graph.nodes
 	
 	def addNewNode(self, node_dict, parent):
 		assert_is_pos(parent)
@@ -168,6 +215,8 @@ class OnlineCPPAlg:
 	def __init__(self, charging_station_pos, environment, energy_budget):
 		self.beta_constant = 3.0 / 4.0
 		self.delta_sonstant = 1.0 / 10.0
+		self.traversed_path = 0
+		self.number_of_paths = 0
 
 		self.charging_station = charging_station_pos
 		self.environment = environment
@@ -230,6 +279,7 @@ class OnlineCPPAlg:
 		
 		# we out of energy budget -> go back to the station.
 		path_to_station = self.graph.getShortestPath(self.robot_pos, self.charging_station)
+		self.number_of_paths = self.number_of_paths + 1
 		self.goOnPath(path_to_station)
 
 		return N_roots;
@@ -281,12 +331,12 @@ class OnlineCPPAlg:
 		for node in self.graph.getUnivisitedNodes():
 			if node['distance'] == min_value:
 				closest_nodes.append(node);
-		
+
 		# we add items to the unvisited nodes list from left-to-right
 		# so the first item is the leftmost.
 		assert(len(closest_nodes) > 0)
 		return closest_nodes[0];
-	
+
 	def findClosestNroot(self, node, Nroots):
 		min_path_len = self.energy_budget
 		min_path = []
@@ -297,7 +347,7 @@ class OnlineCPPAlg:
 				min_path_len = len(path)
 				min_path = path
 				min_node = Nroot_node
-		
+
 		assert(min_node != (-1, -1))
 		return (min_node, min_path)
 
@@ -309,6 +359,7 @@ class OnlineCPPAlg:
 			self.doOneStep(path[node])
 
 	def doOneStep(self, new_pos):
+		self.traversed_path = self.traversed_path + 1
 		assert_is_pos(new_pos)
 		assert(self.robot_pos[0] == new_pos[0] or self.robot_pos[1] == new_pos[1])
 		assert(abs(self.robot_pos[0] - new_pos[0]) == 1 or abs(self.robot_pos[1] - new_pos[1]) == 1)
@@ -321,11 +372,19 @@ class OnlineCPPAlg:
 	def printOut(self):
 		self.environment.printOut(self.robot_pos)
 		self.graph.printOut()
-
+		print("Traversed Path: ", self.traversed_path)
+		print("Number of Paths: ", self.number_of_paths)
+		if ANIMATION_MODE:
+			self.environment.showMatrix(self.robot_pos, self.graph.getNodes())
 
 if __name__ == "__main__":
-	charging_station = (0,0)
-	environment = Environment(4, 5, charging_station, [(2,1), (3,1), (2,2), (3,2)])
-	energy_budget = 20
+	file_path = sys.argv[1] if len(sys.argv) > 1 else 'tests/default_config.txt'
+	charging_station, energy_budget, env_width, env_height, obstacles = readFile(file_path)
+	environment = Environment(env_width, env_height, charging_station, obstacles)
 	alg = OnlineCPPAlg(charging_station, environment, energy_budget)
+	start_time = time.time()
 	alg.run()
+	time_elapsed = time.time() - start_time
+	print("Finished in: ", time_elapsed)
+	if ANIMATION_MODE:
+		input()
