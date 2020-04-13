@@ -287,18 +287,32 @@ class OnlineCPPAlg:
 	def recursiveDepthFirst(self, node, budget, Dcurr, Dcurr_):
 		for neighbour_pos in self.environment.getFreeNeighbours(node['pos']):
 			# we visit unexplored nodes only.
-			if neighbour_pos in self.graph.getNodeDict():
+			if neighbour_pos in self.graph.getNodeDict() and self.graph.getNodeDict()[neighbour_pos]['visited'] == True:
 				continue
 
 			# add nodes as univisted
-			neighbour_distance = node['distance'] + 1
-			self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, node['pos'])
+			if neighbour_pos not in self.graph.getNodeDict():
+				# find out new node distance
+				min_distance = node['distance']
+				for neighbour_of_neighbour_pos in self.environment.getFreeNeighbours(neighbour_pos):
+					if neighbour_of_neighbour_pos in self.graph.getNodeDict():
+						if self.graph.getNodeDict()[neighbour_of_neighbour_pos]['distance'] < min_distance:
+							min_distance = self.graph.getNodeDict()[neighbour_of_neighbour_pos]['distance']
+							min_node = neighbour_of_neighbour_pos
+
+				neighbour_distance = min_distance + 1
+				self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, min_node)
+			else:
+				neighbour_distance = self.graph.getNodeDict()[neighbour_pos]['distance']
 
 			# we can't visit this node because we won't be able go back to the charging station.
 			if neighbour_distance > budget:
 				continue
 			# we visit a contour here, so don't wonder too far.
 			if neighbour_distance < Dcurr or neighbour_distance > Dcurr_:
+				continue
+
+			if neighbour_distance <= node['distance']:
 				continue
 
 			# let visit this new node with the new budget
@@ -366,6 +380,20 @@ class OnlineCPPAlg:
 
 		self.robot_pos = new_pos
 		self.graph.markNodeAsVisited(new_pos)
+
+		for neighbour_pos in self.environment.getFreeNeighbours(new_pos):
+			if neighbour_pos not in self.graph.getNodeDict():
+				# find out new node distance
+				min_distance = 100000000
+				for neighbour_of_neighbour_pos in self.environment.getFreeNeighbours(neighbour_pos):
+					if neighbour_of_neighbour_pos in self.graph.getNodeDict():
+						if self.graph.getNodeDict()[neighbour_of_neighbour_pos]['distance'] < min_distance:
+							min_distance = self.graph.getNodeDict()[neighbour_of_neighbour_pos]['distance']
+							min_node = neighbour_of_neighbour_pos
+
+				neighbour_distance = min_distance + 1
+				self.graph.addNewNode({'pos': neighbour_pos, 'distance': neighbour_distance, 'visited': False}, min_node)
+
 		print("Robot did one step!")
 		self.printOut()
 
