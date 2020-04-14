@@ -16,9 +16,10 @@ ENV_VALUE_STATION = "STATION"
 ENV_VALUE_OBSTACLE = "OBSTACLE"
 
 COLOR_VALUE_EMPTY = 0
-COLOR_VALUE_ROBOT = 50
+COLOR_VALUE_ROBOT = 70
 COLOR_VALUE_STATION = 100
 COLOR_VALUE_OBSTACLE = 150
+COLOR_VALUE_VISITED = 30
 
 if ANIMATION_MODE:
 	plt.ion()
@@ -77,17 +78,24 @@ class Environment:
 		for i in range(self.__height):
 			matrix.append([])
 			for j in range(self.__width):
+				visited = False
+				value = None
+
+				try:
+					text = nodes[(i, j)]['distance']
+					if nodes[(i, j)]['visited'] == True:
+						visited = True
+				except:
+					text = "N/A"
+
 				if robot_position == (i,j):
 					matrix[i].append(COLOR_VALUE_ROBOT)
 					text = "R"
 				else:
-					value = None
-					try:
-						text = nodes[(i, j)]['distance']
-					except:
-						text = "N/A"
 					if self.__env_array[i][j] == ENV_VALUE_EMPTY:
 						value = COLOR_VALUE_EMPTY
+					if visited:
+						value = COLOR_VALUE_VISITED
 					if self.__env_array[i][j] == ENV_VALUE_STATION:
 						value = COLOR_VALUE_STATION
 						text = "S"
