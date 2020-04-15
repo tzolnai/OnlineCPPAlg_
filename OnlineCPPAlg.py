@@ -246,7 +246,8 @@ class OnlineCPPAlg:
 			Bcurr = self.energy_budget - Dcurr
 			Bcurr_ = math.ceil((self.beta_constant + self.delta_sonstant) * Bcurr)
 			Dcurr_ = self.energy_budget - Bcurr_
-			
+			Dcurr_ = min(Dcurr_, math.floor(self.energy_budget / 2.0))
+
 			while self.findUnvisitedNodeWithDepth(0, Dcurr_):
 				self.cover(self.charging_station, i, Dcurr, Dcurr_, Dnext, self.N_roots)
 
